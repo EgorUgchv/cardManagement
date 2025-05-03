@@ -1,0 +1,41 @@
+package com.system.card.card;
+
+import com.system.card.user.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "card")
+public class Card {
+    @Id
+    @GeneratedValue
+    private Integer cardId;
+    @Column(name = "card_number_masked" , nullable = false, unique = true, length = 16)
+    private String cardNumberMasked;
+
+    @Column(name = "encrypted_card_number", nullable = false, columnDefinition = "TEXT")
+    private String encryptedCardNumber;
+    @Column(name = "card_holder_name", nullable = false, length = 100)
+    private String cardHolderName;
+    @Column(name = "expiry_date", nullable = false)
+    private LocalDate expiryDate;
+    @Enumerated(EnumType.STRING)
+    @Column(name= "card_status", nullable = false, length = 15)
+    private CardStatus cardStatus;
+    @Column(name = "balance",nullable = false, precision = 15, scale = 2)
+    private BigDecimal balance;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    public User user;
+}
