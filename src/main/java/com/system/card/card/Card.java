@@ -1,5 +1,6 @@
 package com.system.card.card;
 
+import com.system.card.config.Encryptor;
 import com.system.card.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,13 +21,11 @@ public class Card {
     @Id
     @GeneratedValue
     private Integer cardId;
-    @Column(name = "card_number_masked" , nullable = false, unique = true, length = 16)
-    private String cardNumberMasked;
-
+    @Convert(converter = Encryptor.class)
     @Column(name = "encrypted_card_number", nullable = false, columnDefinition = "TEXT")
     private String encryptedCardNumber;
     @Column(name = "card_holder_name", nullable = false, length = 100)
-    private String cardHolderName;
+    private String cardHolderFullName;
     @Column(name = "expiry_date", nullable = false)
     private LocalDate expiryDate;
     @Enumerated(EnumType.STRING)

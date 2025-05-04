@@ -22,8 +22,7 @@ public class CardManagementApplication {
 	){
 		return args -> {
 			var admin = RegisterRequest.builder()
-					.firstName("admin")
-					.lastName("admin")
+					.fullName("admin")
 					.email("admin@mail.com")
 					.password("pass")
 					.role(ADMIN)

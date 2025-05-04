@@ -24,9 +24,8 @@ public class User implements UserDetails, Serializable {
     @Id
     @GeneratedValue
     private Integer userId;
-    private String firstName;
-    private String lastName;
     private String email;
+    private String fullName;
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
