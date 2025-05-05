@@ -1,5 +1,6 @@
 package com.system.card.token;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.system.card.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,9 @@ public class Token {
     public boolean revoked;
     public boolean expired;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     public User user;
+
 }

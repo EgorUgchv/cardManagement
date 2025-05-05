@@ -1,5 +1,6 @@
 package com.system.card.user;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.system.card.card.Card;
 import com.system.card.token.Token;
 import jakarta.persistence.*;
@@ -29,9 +30,11 @@ public class User implements UserDetails, Serializable {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user")
     private List<Card> cards;
 

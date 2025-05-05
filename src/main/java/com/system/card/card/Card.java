@@ -1,5 +1,6 @@
 package com.system.card.card;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.system.card.config.Encryptor;
 import com.system.card.user.User;
 import jakarta.persistence.*;
@@ -22,7 +23,7 @@ public class Card {
     @GeneratedValue
     private Integer cardId;
     @Convert(converter = Encryptor.class)
-    @Column(name = "encrypted_card_number", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "encrypted_card_number", nullable = false, columnDefinition = "TEXT", unique = true)
     private String encryptedCardNumber;
     @Column(name = "card_holder_name", nullable = false, length = 100)
     private String cardHolderFullName;
@@ -34,6 +35,7 @@ public class Card {
     @Column(name = "balance",nullable = false, precision = 15, scale = 2)
     private BigDecimal balance;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     public User user;
