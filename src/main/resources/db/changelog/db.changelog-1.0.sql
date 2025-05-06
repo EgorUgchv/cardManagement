@@ -46,3 +46,11 @@ CREATE TABLE IF NOT EXISTS token
     ON DELETE NO ACTION,
     CONSTRAINT token_token_type_check CHECK (token_type::text = 'BEARER'::text)
     );
+create sequence if not exists _user_seq
+    increment by 50;
+
+create sequence if not exists card_seq
+    increment by 50;
+
+create sequence if not exists token_seq
+    increment by 50;
