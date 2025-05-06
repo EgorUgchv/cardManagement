@@ -22,4 +22,5 @@ public class CardDto {
     private BigDecimal balance;
     @Email
     private String cardHolderEmail;
+
 }

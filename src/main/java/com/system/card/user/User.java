@@ -25,7 +25,9 @@ public class User implements UserDetails, Serializable {
     @Id
     @GeneratedValue
     private Integer userId;
+    //@Column(unique = true, nullable = false)
     private String email;
+    //@Column(unique = true, nullable = false)
     private String fullName;
     private String password;
     @Enumerated(EnumType.STRING)

@@ -31,7 +31,7 @@ private CardRepository cardRepository;
 
 	@Test
 	void retrieveCard() {
-		Card card = cardRepository.findById(102).get();
+		Card card = cardRepository.findById(202).get();
 		System.out.println(card);
 	}
 }

@@ -1,6 +1,7 @@
 package com.system.card.card;
 
 import com.system.card.config.JwtService;
+import com.system.card.mapper.CardMapper;
 import com.system.card.user.User;
 import com.system.card.user.UserRepository;
 import jakarta.validation.constraints.Min;
@@ -29,7 +30,7 @@ public class CardController {
     private CardRepository cardRepository;
 
     @GetMapping
-    public Page<Card> getAll(
+    public Page<CardDto> getAll(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam(value = "offset", defaultValue = "0") @Min(0) Integer offset,
             @RequestParam(value = "limit", defaultValue = "20") Integer limit
@@ -40,6 +41,6 @@ public class CardController {
         userEmail = jwtService.extractUsername(jwt);
         var user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            return cardRepository.findAllByUser(user,PageRequest.of(offset, limit));
+            return cardRepository.findAllByUser(user,PageRequest.of(offset, limit)).map(card -> CardResponse.fromCard(card, userEmail));
     }
 }
