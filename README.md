@@ -23,6 +23,12 @@ docker compose up
 docker compose exec cardmanagement_db psql -U postgres -c "CREATE DATABASE card_management;"
 ```
 
+После необходимо перезагрузить контейнеры:
+ ```shell
+ docker compose down
+ docker compose up
+```
+
 ### ✅ Всё готово
 
 
