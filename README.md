@@ -29,7 +29,7 @@ docker compose exec cardmanagement_db psql -U postgres -c "CREATE DATABASE card_
 
 **Swagger**
 
-Swagger UI находится по адресу `http://localhost:8080/swagger-ui/index.html#/`
+Swagger UI находится по адресу `http://localhost:8080/swagger-ui/index.html#/`. Токен для роли администратора находится в `logs` контейнера `cardmanagement` в следующем виде `Admin toke: токен`.
 
 
 *Развертывание протестировано на OS `Linux Mint`*
