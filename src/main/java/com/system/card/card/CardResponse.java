@@ -14,6 +14,7 @@ public class CardResponse {
         cardDto.setExpiryDate(card.getExpiryDate());
         cardDto.setBalance(card.getBalance());
         cardDto.setCardHolderEmail(userEmail);
+        cardDto.setCardStatus(card.getCardStatus());
         return cardDto;
     }
 }

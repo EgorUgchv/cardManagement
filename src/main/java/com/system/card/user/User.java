@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.system.card.card.Card;
 import com.system.card.token.Token;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -15,8 +12,8 @@ import java.io.*;
 import java.util.Collection;
 import java.util.List;
 
-@Data
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

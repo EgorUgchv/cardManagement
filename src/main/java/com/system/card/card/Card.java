@@ -4,19 +4,17 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.system.card.config.Encryptor;
 import com.system.card.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Setter
+@Getter
 @Table(name = "card")
 public class Card {
     @Id

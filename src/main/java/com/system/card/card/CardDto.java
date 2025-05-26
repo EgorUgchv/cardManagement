@@ -20,7 +20,8 @@ public class CardDto {
     private LocalDate expiryDate;
     @Min(0)
     private BigDecimal balance;
-    @Email
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Invalid email format")
     private String cardHolderEmail;
-
+    private CardStatus cardStatus;
 }

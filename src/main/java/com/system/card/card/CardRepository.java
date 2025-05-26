@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Integer> {
 
     Page<Card> findAllByUser(User user, Pageable pageable);
+
+    Optional<Card> getCardByEncryptedCardNumber(String cardNumber);
 }
