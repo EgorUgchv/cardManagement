@@ -48,7 +48,7 @@ public class CardController {
         return cardService.getAllCardsPage(user, offset, limit);
     }
 
-    @PatchMapping
+    @PatchMapping("/block-card")
     public ResponseEntity<String> requestCardBlocking(@RequestParam String cardNumber) throws BadRequestException {
         Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(cardNumber);
         if(userCard.isPresent()) {
@@ -59,6 +59,15 @@ public class CardController {
         }
         else return new ResponseEntity<>("Card doesn't exists", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("Blocked card successful", HttpStatus.ACCEPTED);
-
     }
+
+//    @PatchMapping("/card-tranfer")
+//    public ResponseEntity<String> requestCardTransfer(@RequestParam String SenderCardNumber, @RequestParam String BeneficiaryCardNumber) throws BadRequestException {
+//        Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(cardNumber);
+//        if(userCard.isPresent()) {
+//
+//        }
+//        else return new ResponseEntity<>("Card doesn't exists", HttpStatus.BAD_REQUEST);
+//    }
+
 }
