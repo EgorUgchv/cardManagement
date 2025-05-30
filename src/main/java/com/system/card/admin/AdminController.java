@@ -37,9 +37,7 @@ public class AdminController {
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     public ResponseEntity<String> createCard(@Valid @RequestBody CardDto cardDto) throws BadRequestException {
-        User user = userRepository.findByFullName(cardDto.getCardHolderFullName())
-                .orElseThrow(() -> new BadRequestException("User not found, create user first"));
-        cardService.createCard(cardDto, user);
+        cardService.createCard(cardDto);
         return new ResponseEntity<>("Created card successful", HttpStatus.CREATED);
     }
 

@@ -28,6 +28,13 @@ public class CardController {
     private CardService cardService;
     private AdminController adminController;
 
+    /**
+     * Получение всех карт пользователя c постраничной выдачей
+     * @param authHeader jwt token
+     * @param offset cмещение
+     * @param limit максимальное количество требуемых записей
+     * @return все карты пользователя с постраничной выдачей
+     */
     @GetMapping
     public Page<CardDto> getAll(
             @RequestHeader("Authorization") String authHeader,
@@ -37,6 +44,12 @@ public class CardController {
         return cardService.getAllCardsPage(authHeader, offset, limit);
     }
 
+    /**
+     * Блокировка карты пользователя
+     * @param cardNumber номер карты, которую нужно заблокировать
+     * @return Http response 204
+     * @throws BadRequestException номер карты не существует
+     */
     @PatchMapping("/block-card")
     public ResponseEntity<Void> requestCardBlocking(@RequestParam String cardNumber) throws BadRequestException {
         cardService.changeCardStatus(cardNumber);

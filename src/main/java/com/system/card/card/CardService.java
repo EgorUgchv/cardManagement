@@ -32,10 +32,11 @@ public class CardService {
      * Создание карты в базе данных
      *
      * @param cardDto карта, которую необходимо создать
-     * @param user    пользователь, который существует в базе данных
      */
     @Transactional
-    public void createCard(@Valid CardDto cardDto, User user) {
+    public void createCard(@Valid CardDto cardDto) throws BadRequestException {
+        User user = userRepository.findByFullName(cardDto.getCardHolderFullName())
+                .orElseThrow(() -> new BadRequestException("User not found, create user first"));
         Card card = cardMapper.mapToCard(cardDto);
         card.setUser(user);
         card.setCardStatus(CardStatus.ACTIVE);
