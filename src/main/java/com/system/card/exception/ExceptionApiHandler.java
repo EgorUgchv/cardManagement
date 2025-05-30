@@ -49,6 +49,23 @@ public class ExceptionApiHandler {
                 .body(new ErrorMessage(e.getMessage()));
     }
 
+    @ExceptionHandler(CardBlockedException.class)
+    public ResponseEntity<ErrorMessage> handleCardBlockedException(CardBlockedException e) {
+        log.warn("Card blocked", e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(e.getMessage()));
+    }
+
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ErrorMessage> handleInsufficientFundsException(InsufficientFundsException e) {
+        log.warn("Insufficient funds", e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(e.getMessage()));
+    }
+
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -78,14 +95,12 @@ public class ExceptionApiHandler {
         return new ValidationErrorResponse(violations);
     }
 @ExceptionHandler(CardAlreadyBlockedException.class)
-public ResponseEntity<Map<String, String>> handleCardAlreadyBlockedException(CardAlreadyBlockedException e){
+public ResponseEntity<ErrorMessage> handleCardAlreadyBlockedException(CardAlreadyBlockedException e){
        log.warn("Card already blocked", e);
-       Map<String,String> errors = new HashMap<>();
-       errors.put("message",e.getMessage());
 
        return ResponseEntity
                .status(HttpStatus.BAD_REQUEST)
-               .body(errors);
+               .body(new ErrorMessage(e.getMessage()));
 }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleAllExceptions(Exception e) {

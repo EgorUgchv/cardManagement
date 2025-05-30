@@ -10,9 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -30,9 +31,10 @@ public class CardController {
 
     /**
      * Получение всех карт пользователя c постраничной выдачей
+     *
      * @param authHeader jwt token
-     * @param offset cмещение
-     * @param limit максимальное количество требуемых записей
+     * @param offset     cмещение
+     * @param limit      максимальное количество требуемых записей
      * @return все карты пользователя с постраничной выдачей
      */
     @GetMapping
@@ -46,6 +48,7 @@ public class CardController {
 
     /**
      * Блокировка карты пользователя
+     *
      * @param cardNumber номер карты, которую нужно заблокировать
      * @return Http response 204
      * @throws BadRequestException номер карты не существует
@@ -56,14 +59,18 @@ public class CardController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PatchMapping("/card-tranfer")
-//    public ResponseEntity<String> requestTransfer(@RequestParam String SenderCardNumber, @RequestParam String BeneficiaryCardNumber) throws BadRequestException {
-//       cardService.req
-//        Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(SendCardNumber);
-//        if(userCard.isPresent()) {
-//
-//        }
-//        else return new ResponseEntity<>("Card doesn't exists", HttpStatus.BAD_REQUEST);
-//    }
+    /**
+     * Перевод денег с одной карты на другую
+     * @param senderCardNumber номер карты отправителя
+     * @param beneficiaryCardNumber номер карты получателя
+     * @param transferAmount сумма, которую нужно перевести
+     * @return Http response 204
+     * @throws BadRequestException введенные данные неверны
+     */
+    @PatchMapping("/card-tranfer")
+    public ResponseEntity<Void> transferMoney(@RequestParam String senderCardNumber, @RequestParam String beneficiaryCardNumber, @RequestParam BigDecimal transferAmount) throws BadRequestException {
+        cardService.transferMoney(senderCardNumber, beneficiaryCardNumber, transferAmount);
+        return ResponseEntity.noContent().build();
+    }
 
 }

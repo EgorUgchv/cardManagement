@@ -1,11 +1,11 @@
 package com.system.card.admin;
 
-import com.system.card.card.*;
+import com.system.card.card.CardDto;
+import com.system.card.card.CardRepository;
+import com.system.card.card.CardService;
 import com.system.card.mapper.CardMapper;
-import com.system.card.user.User;
 import com.system.card.user.UserRepository;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -30,6 +29,7 @@ public class AdminController {
 
     /**
      * Метод создания карты
+     *
      * @param cardDto карта, которую необходимо добавить
      * @return Http response 200
      * @throws BadRequestException переданные данные некорректны или такого пользователя не существует
@@ -43,6 +43,7 @@ public class AdminController {
 
     /**
      * Получение всех карт
+     *
      * @return Список всех карт
      */
     @GetMapping
@@ -52,7 +53,7 @@ public class AdminController {
         if (allCards.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(allCards,HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(allCards, HttpStatus.ACCEPTED);
     }
 
 //    @PatchMapping

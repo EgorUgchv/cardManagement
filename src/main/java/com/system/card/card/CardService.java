@@ -2,6 +2,8 @@ package com.system.card.card;
 
 import com.system.card.config.JwtService;
 import com.system.card.exception.CardAlreadyBlockedException;
+import com.system.card.exception.CardBlockedException;
+import com.system.card.exception.InsufficientFundsException;
 import com.system.card.mapper.CardMapper;
 import com.system.card.user.User;
 import com.system.card.user.UserRepository;
@@ -16,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +38,7 @@ public class CardService {
      */
     @Transactional
     public void createCard(@Valid CardDto cardDto) throws BadRequestException {
-        User user = userRepository.findByFullName(cardDto.getCardHolderFullName())
+        User user = userRepository.findByEmail(cardDto.getCardHolderEmail())
                 .orElseThrow(() -> new BadRequestException("User not found, create user first"));
         Card card = cardMapper.mapToCard(cardDto);
         card.setUser(user);
@@ -56,14 +59,13 @@ public class CardService {
 
     public void changeCardStatus(String cardNumber) throws BadRequestException {
         Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(cardNumber);
-        if(userCard.isPresent()) {
+        if (userCard.isPresent()) {
             if (userCard.get().getCardStatus() == CardStatus.BLOCKED) {
                 throw new CardAlreadyBlockedException("Card with this number already blocked: " + cardNumber);
             }
-           userCard.get().setCardStatus(CardStatus.BLOCKED);
+            userCard.get().setCardStatus(CardStatus.BLOCKED);
             cardRepository.save(userCard.get());
-        }
-         else {
+        } else {
             throw new BadRequestException("Card with this number does not exist: " + cardNumber);
         }
 
@@ -78,5 +80,27 @@ public class CardService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return cardRepository.findAllByUser(user, PageRequest.of(offset, limit))
                 .map(card -> CardResponse.fromCard(card, user.getEmail()));
+    }
+
+    public void transferMoney(String senderCardNumber, String beneficiaryCardNumber, BigDecimal transferAmount) {
+        Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(senderCardNumber);
+        Optional<Card> beneficiaryCard = cardRepository.getCardByEncryptedCardNumber(beneficiaryCardNumber);
+        if (userCard.isPresent() && beneficiaryCard.isPresent()) {
+            if (userCard.get().getCardStatus() == CardStatus.ACTIVE) {
+                if (beneficiaryCard.get().getCardStatus() == CardStatus.ACTIVE) {
+                    if (userCard.get().getBalance().compareTo(transferAmount) >= 0) {
+                        userCard.get().setBalance(userCard.get().getBalance().subtract(transferAmount));
+                        cardRepository.save(userCard.get());
+                        beneficiaryCard.get().setBalance(beneficiaryCard.get().getBalance().add(transferAmount));
+                        cardRepository.save(beneficiaryCard.get());
+                    } else {
+                        throw new InsufficientFundsException("Insufficient funds to transfer: " + transferAmount + " from " + senderCardNumber + " to " + beneficiaryCardNumber);
+                    }
+                } else throw new CardBlockedException("Card with number " + beneficiaryCardNumber + "blocked");
+            } else {
+                throw new CardBlockedException("Card with number " + senderCardNumber + "blocked");
+            }
+        }
+
     }
 }
