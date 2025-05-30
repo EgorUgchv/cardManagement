@@ -1,6 +1,7 @@
 package com.system.card.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,21 +11,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class ExceptionApiHandler {
 
     @ExceptionHandler(CipherInitializationException.class)
-    public ResponseEntity<ErrorMessage> initCipherException(CipherInitializationException e) {
+    public ResponseEntity<ErrorMessage> handleInitCipherException(CipherInitializationException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(e.getMessage()));
     }
 
     @ExceptionHandler(DataEncryptionException.class)
-    public ResponseEntity<ErrorMessage> dataEncryptionException(DataEncryptionException e) {
+    public ResponseEntity<ErrorMessage> handleDataEncryptionException(DataEncryptionException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(e.getMessage()));
@@ -32,14 +36,14 @@ public class ExceptionApiHandler {
 
 
     @ExceptionHandler(DataSerializationException.class)
-    public ResponseEntity<ErrorMessage> serializationException(DataSerializationException e) {
+    public ResponseEntity<ErrorMessage> handleSerializationException(DataSerializationException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(e.getMessage()));
     }
 
     @ExceptionHandler(DataProcessingException.class)
-    public ResponseEntity<ErrorMessage> dataProcessingException(DataProcessingException e) {
+    public ResponseEntity<ErrorMessage> handleDataProcessingException(DataProcessingException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(e.getMessage()));
@@ -48,7 +52,7 @@ public class ExceptionApiHandler {
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ValidationErrorResponse onConstraintValidationException(
+    public ValidationErrorResponse handleConstraintValidationException(
             ConstraintViolationException e
     ) {
         final List<Violation> violations = e.getConstraintViolations().stream()
@@ -65,7 +69,7 @@ public class ExceptionApiHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ValidationErrorResponse onMethodArgumentNotValidException(
+    public ValidationErrorResponse handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e
     ) {
         final List<Violation> violations = e.getBindingResult().getFieldErrors().stream()
@@ -73,9 +77,18 @@ public class ExceptionApiHandler {
                 .collect(Collectors.toList());
         return new ValidationErrorResponse(violations);
     }
+@ExceptionHandler(CardAlreadyBlockedException.class)
+public ResponseEntity<Map<String, String>> handleCardAlreadyBlockedException(CardAlreadyBlockedException e){
+       log.warn("Card already blocked", e);
+       Map<String,String> errors = new HashMap<>();
+       errors.put("message",e.getMessage());
 
+       return ResponseEntity
+               .status(HttpStatus.BAD_REQUEST)
+               .body(errors);
+}
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorMessage> allExceptions(Exception e) {
+    public ResponseEntity<ErrorMessage> handleAllExceptions(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(e.getMessage()));

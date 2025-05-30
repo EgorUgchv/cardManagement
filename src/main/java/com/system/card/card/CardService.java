@@ -1,5 +1,6 @@
 package com.system.card.card;
 
+import com.system.card.exception.CardAlreadyBlockedException;
 import com.system.card.mapper.CardMapper;
 import com.system.card.user.User;
 import jakarta.transaction.Transactional;
@@ -47,12 +48,17 @@ public class CardService {
         return cardMapper.mapToCardDto(allCards);
     }
 
-    public void changeCardStatus(Optional<Card> card) throws BadRequestException {
-        if (card.isPresent()) {
-            card.get().setCardStatus(CardStatus.BLOCKED);
-            cardRepository.save(card.get());
-        } else {
-            throw new BadRequestException();
+    public void changeCardStatus(String cardNumber) throws BadRequestException {
+        Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(cardNumber);
+        if(userCard.isPresent()) {
+            if (userCard.get().getCardStatus() == CardStatus.BLOCKED) {
+                throw new CardAlreadyBlockedException("Card with this number already blocked: " + cardNumber);
+            }
+           userCard.get().setCardStatus(CardStatus.BLOCKED);
+            cardRepository.save(userCard.get());
+        }
+         else {
+            throw new BadRequestException("Card with this number does not exist: " + cardNumber);
         }
 
     }
