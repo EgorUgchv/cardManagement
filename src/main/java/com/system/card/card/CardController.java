@@ -34,13 +34,7 @@ public class CardController {
             @RequestParam(value = "offset", defaultValue = "0") @Min(0) Integer offset,
             @RequestParam(value = "limit", defaultValue = "20") Integer limit
     ) {
-        final String jwt;
-        final String userEmail;
-        jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
-        var user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return cardService.getAllCardsPage(user, offset, limit);
+        return cardService.getAllCardsPage(authHeader, offset, limit);
     }
 
     @PatchMapping("/block-card")

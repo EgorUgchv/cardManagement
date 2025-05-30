@@ -1,8 +1,10 @@
 package com.system.card.card;
 
+import com.system.card.config.JwtService;
 import com.system.card.exception.CardAlreadyBlockedException;
 import com.system.card.mapper.CardMapper;
 import com.system.card.user.User;
+import com.system.card.user.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -10,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -20,8 +23,10 @@ import java.util.Optional;
 @AllArgsConstructor
 @Validated
 public class CardService {
-    private CardMapper cardMapper;
-    private CardRepository cardRepository;
+    private final JwtService jwtService;
+    private final CardMapper cardMapper;
+    private final CardRepository cardRepository;
+    private final UserRepository userRepository;
 
     /**
      * Создание карты в базе данных
@@ -63,7 +68,14 @@ public class CardService {
 
     }
 
-    public Page<CardDto> getAllCardsPage(User user, @Min(0) Integer offset, Integer limit) {
-        return cardRepository.findAllByUser(user, PageRequest.of(offset, limit)).map(card -> CardResponse.fromCard(card, user.getEmail()));
+    public Page<CardDto> getAllCardsPage(String authHeader, @Min(0) Integer offset, Integer limit) {
+        final String jwt;
+        final String userEmail;
+        jwt = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(jwt);
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return cardRepository.findAllByUser(user, PageRequest.of(offset, limit))
+                .map(card -> CardResponse.fromCard(card, user.getEmail()));
     }
 }
