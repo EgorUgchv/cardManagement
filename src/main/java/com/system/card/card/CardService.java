@@ -3,6 +3,7 @@ package com.system.card.card;
 import com.system.card.config.JwtService;
 import com.system.card.exception.CardAlreadyBlockedException;
 import com.system.card.exception.CardBlockedException;
+import com.system.card.exception.CardNotFoundException;
 import com.system.card.exception.InsufficientFundsException;
 import com.system.card.mapper.CardMapper;
 import com.system.card.user.User;
@@ -72,34 +73,47 @@ public class CardService {
     }
 
     public Page<CardDto> getAllCardsPage(String authHeader, @Min(0) Integer offset, Integer limit) {
-        final String jwt;
-        final String userEmail;
-        jwt = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(jwt);
-        var user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = getUserByJwt(authHeader);
         return cardRepository.findAllByUser(user, PageRequest.of(offset, limit))
                 .map(card -> CardResponse.fromCard(card, user.getEmail()));
     }
 
-    public void transferMoney(String senderCardNumber, String beneficiaryCardNumber, BigDecimal transferAmount) {
-        Optional<Card> userCard = cardRepository.getCardByEncryptedCardNumber(senderCardNumber);
-        Optional<Card> beneficiaryCard = cardRepository.getCardByEncryptedCardNumber(beneficiaryCardNumber);
-        if (userCard.isPresent() && beneficiaryCard.isPresent()) {
-            if (userCard.get().getCardStatus() == CardStatus.ACTIVE) {
-                if (beneficiaryCard.get().getCardStatus() == CardStatus.ACTIVE) {
-                    if (userCard.get().getBalance().compareTo(transferAmount) >= 0) {
-                        userCard.get().setBalance(userCard.get().getBalance().subtract(transferAmount));
-                        cardRepository.save(userCard.get());
-                        beneficiaryCard.get().setBalance(beneficiaryCard.get().getBalance().add(transferAmount));
-                        cardRepository.save(beneficiaryCard.get());
-                    } else {
-                        throw new InsufficientFundsException("Insufficient funds to transfer: " + transferAmount + " from " + senderCardNumber + " to " + beneficiaryCardNumber);
-                    }
-                } else throw new CardBlockedException("Card with number " + beneficiaryCardNumber + "blocked");
-            } else {
-                throw new CardBlockedException("Card with number " + senderCardNumber + "blocked");
-            }
+    public User getUserByJwt(String jwt) {
+        final String payload = jwt.substring(7);
+        final String userEmail = jwtService.extractUsername(payload);
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Transactional
+    public void transferMoney(String senderCardNumber, String beneficiaryCardNumber, BigDecimal transferAmount, String jwt) {
+        User senderUser = getUserByJwt(jwt);
+        Card senderCard = cardRepository.getCardByEncryptedCardNumberAndUser(senderCardNumber, senderUser)
+                .orElseThrow(() -> new CardNotFoundException("Card with number " + senderCardNumber + " not found at user " + senderUser.getEmail()));
+        Card beneficiaryCard = cardRepository.getCardByEncryptedCardNumber(beneficiaryCardNumber)
+                .orElseThrow(() -> new CardNotFoundException("Card with number " + beneficiaryCardNumber + " not found"));
+
+        checkCardIsActive(senderCard);
+        checkCardIsActive(beneficiaryCard);
+        checkFundsAreSufficient(senderCard, transferAmount);
+
+        senderCard.setBalance(senderCard.getBalance().subtract(transferAmount));
+        beneficiaryCard.setBalance(beneficiaryCard.getBalance().add(transferAmount));
+
+        cardRepository.save(senderCard);
+        cardRepository.save(beneficiaryCard);
+
+    }
+
+    private void checkFundsAreSufficient(Card card, BigDecimal amount) {
+        if (card.getBalance().compareTo(card.getBalance()) < 0) {
+            throw new InsufficientFundsException("Insufficient funds to transfer: " + amount + " from card" + card.getEncryptedCardNumber());
+        }
+    }
+
+    private void checkCardIsActive(Card card) {
+        if (card.getCardStatus() != CardStatus.ACTIVE) {
+            throw new CardBlockedException("Card is blocked: " + card.getEncryptedCardNumber());
         }
 
     }

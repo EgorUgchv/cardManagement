@@ -61,15 +61,20 @@ public class CardController {
 
     /**
      * Перевод денег с одной карты на другую
-     * @param senderCardNumber номер карты отправителя
+     *
+     * @param senderCardNumber      номер карты отправителя
      * @param beneficiaryCardNumber номер карты получателя
-     * @param transferAmount сумма, которую нужно перевести
+     * @param transferAmount        сумма, которую нужно перевести
      * @return Http response 204
      * @throws BadRequestException введенные данные неверны
      */
     @PatchMapping("/card-tranfer")
-    public ResponseEntity<Void> transferMoney(@RequestParam String senderCardNumber, @RequestParam String beneficiaryCardNumber, @RequestParam BigDecimal transferAmount) throws BadRequestException {
-        cardService.transferMoney(senderCardNumber, beneficiaryCardNumber, transferAmount);
+    public ResponseEntity<Void> transferMoney(@RequestParam String senderCardNumber,
+                                              @RequestParam String beneficiaryCardNumber,
+                                              @RequestParam BigDecimal transferAmount,
+                                              @RequestHeader("Authorization") String authHeader
+    ) {
+        cardService.transferMoney(senderCardNumber, beneficiaryCardNumber, transferAmount, authHeader);
         return ResponseEntity.noContent().build();
     }
 

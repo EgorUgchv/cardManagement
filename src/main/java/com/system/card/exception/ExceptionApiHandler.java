@@ -66,6 +66,14 @@ public class ExceptionApiHandler {
                 .body(new ErrorMessage(e.getMessage()));
     }
 
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<ErrorMessage> handleCardNotFoundException(CardNotFoundException e) {
+        log.warn("Card not found", e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(e.getMessage()));
+    }
+
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
