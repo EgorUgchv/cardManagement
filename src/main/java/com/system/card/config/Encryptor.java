@@ -27,7 +27,7 @@ public class Encryptor implements AttributeConverter<Object, String> {
 
     private Key getKey() {
         if (key == null) {
-            key = new SecretKeySpec(encryptionKey.getBytes(), encryptionCipher);
+            key = new SecretKeySpec(encryptionKey.getBytes(), "AES");
         }
         return key;
     }
@@ -36,7 +36,7 @@ public class Encryptor implements AttributeConverter<Object, String> {
         try {
 
             if (cipher == null) {
-                cipher = Cipher.getInstance(encryptionCipher);
+                cipher = Cipher.getInstance("AES");
             }
             return cipher;
         } catch (GeneralSecurityException e) {
@@ -80,7 +80,7 @@ public class Encryptor implements AttributeConverter<Object, String> {
             byte[] bytes = getCipher().doFinal(Base64.getDecoder().decode(dbData));
             return SerializationUtils.deserialize(bytes);
         } catch (IllegalBlockSizeException | BadPaddingException e) {
-            throw new DataDecryptionException("Error while decrypt data",e);
+            throw new DataDecryptionException("Error while decrypt data", e);
         }
     }
 }
